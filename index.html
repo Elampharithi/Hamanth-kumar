@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart AI Text Summarizer</title><style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #101c3a, #2563eb);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    width: 100%;
+    max-width: 750px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+h1 {
+    text-align: center;
+    color: #1e3a8a;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+textarea {
+    width: 100%;
+    height: 200px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    resize: vertical;
+    outline: none;
+}
+
+textarea:focus {
+    border-color: #2563eb;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+button {
+    flex: 1;
+    min-width: 120px;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.clear {
+    background: #64748b;
+}
+
+.copy {
+    background: #16a34a;
+}
+
+.result-box {
+    background: #eff6ff;
+    padding: 20px;
+    border-radius: 10px;
+    min-height: 100px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+footer {
+    text-align: center;
+    color: #777;
+    margin-top: 25px;
+    font-size: 13px;
+}
+
+@media(max-width: 500px) {
+    .container {
+        padding: 20px;
+    }
+}
+</style></head><body><div class="container"><h1>🤖 Smart AI Text Summarizer</h1>
+
+<p class="subtitle">
+    Convert long paragraphs into short summaries.
+</p>
+
+<label>Enter Your Text</label>
+
+<textarea id="inputText"
+placeholder="Paste your long paragraph here..."></textarea>
+
+<div class="buttons">
+    <button onclick="summarizeText()">✨ Summarize</button>
+    <button class="clear" onclick="clearText()">Clear</button>
+</div>
+
+<label>Summary Result</label>
+
+<div class="result-box" id="result">
+    Your summary will appear here...
+</div>
+
+<div class="buttons">
+    <button class="copy" onclick="copyText()">📋 Copy Summary</button>
+</div>
+
+<footer>
+    Smart AI Text Summarizer | College Mini Project
+</footer>
+
+</div><script>
+
+function summarizeText() {
+
+    let text = document.getElementById("inputText").value.trim();
+
+    if (text === "") {
+        alert("Please enter some text!");
+        return;
+    }
+
+    let sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+
+    if (sentences.length <= 2) {
+        document.getElementById("result").innerText = text;
+        return;
+    }
+
+    let stopWords = [
+        "the","is","a","an","and","of","to","in",
+        "for","on","with","it","this","that","are",
+        "was","were","be","as","by","or"
+    ];
+
+    let frequency = {};
+
+    let words = text.toLowerCase().match(/\b[a-z]+\b/g) || [];
+
+    words.forEach(word => {
+        if (!stopWords.includes(word)) {
+            frequency[word] = (frequency[word] || 0) + 1;
+        }
+    });
+
+    let scored = sentences.map((sentence,index) => {
+
+        let sentenceWords =
+            sentence.toLowerCase().match(/\b[a-z]+\b/g) || [];
+
+        let score = 0;
+
+        sentenceWords.forEach(word => {
+            score += frequency[word] || 0;
+        });
+
+        return {
+            sentence: sentence.trim(),
+            index: index,
+            score: score
+        };
+
+    });
+
+    let count = Math.max(1, Math.ceil(sentences.length * 0.3));
+
+    let summary = scored
+        .sort((a,b) => b.score - a.score)
+        .slice(0,count)
+        .sort((a,b) => a.index - b.index)
+        .map(item => item.sentence)
+        .join(" ");
+
+    document.getElementById("result").innerText = summary;
+
+}
+
+function clearText() {
+
+    document.getElementById("inputText").value = "";
+
+    document.getElementById("result").innerText =
+        "Your summary will appear here...";
+
+}
+
+function copyText() {
+
+    let result = document.getElementById("result").innerText;
+
+    navigator.clipboard.writeText(result)
+    .then(() => alert("Summary copied successfully!"))
+    .catch(() => alert("Unable to copy summary."));
+
+}
+
+</script></body>
+</html>
